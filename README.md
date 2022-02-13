@@ -1,5 +1,7 @@
 # Week 6 Assignment
 
+RESULT: [CODE COVERAGE](code-coverage.html)
+
 In this assignment, we expect to you develop a configurable backend service that having the following business requirements:
 
 First of all, see [configuration file for local environment.](.config/local.json)

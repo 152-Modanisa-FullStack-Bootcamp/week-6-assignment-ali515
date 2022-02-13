@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<!-- saved from url=(0093)file:///C:/Users/Ali%20Demircio%C4%9Flu/AppData/Local/Temp/cover227216978/coverage.html#file0 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		
+		<title>config: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">bootcamp/config/config.go (88.9%)</option>
+				
+				<option value="file1">bootcamp/controller/controller.go (90.0%)</option>
+				
+				<option value="file2">bootcamp/handler/handler.go (88.5%)</option>
+				
+				<option value="file3">bootcamp/repository/repository.go (92.3%)</option>
+				
+				<option value="file4">bootcamp/service/service.go (95.7%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: block;">package config
+
+import (
+        "encoding/json"
+        "fmt"
+        "os"
+)
+
+const (
+        APP_ENV = "APP_ENV"
+        LOCAL   = "local"
+        PROD    = "prod"
+)
+
+var Env *Config
+
+type Config struct {
+        isLocal              bool
+        InitialBalanceAmount float64 `json="initialBalanceAmount"`
+        MinumumBalanceAmount float64 `json="minumumBalanceAmount"`
+}
+
+func (c *Config) IsLocal() bool <span class="cov8" title="1">{
+        return c.isLocal
+}</span>
+
+func Initialize() <span class="cov8" title="1">{
+        appEnv, ok := os.LookupEnv(APP_ENV)
+        if !ok </span><span class="cov8" title="1">{
+                appEnv = LOCAL
+        }</span>
+
+        <span class="cov8" title="1">path := fmt.Sprintf(".config/%s.json", appEnv)
+        read, err := os.ReadFile(path)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov8" title="1">env := &amp;Config{}
+        err = json.Unmarshal(read, env)
+        if err != nil </span><span class="cov0" title="0">{
+                panic(err)</span>
+        }
+
+        <span class="cov8" title="1">env.isLocal = appEnv == LOCAL
+        Env = env</span>
+}
+
+func GetEnv(key string, def string) string <span class="cov8" title="1">{
+        env, has := os.LookupEnv(key)
+        if !has </span><span class="cov8" title="1">{
+                return def
+        }</span>
+        <span class="cov8" title="1">return env</span>
+}
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package controller
+
+import (
+        "bootcamp/handler"
+        "net/http"
+        "strings"
+)
+
+type IController interface {
+        Routing(w http.ResponseWriter, r *http.Request)
+}
+
+type controller struct {
+        handler handler.IHandler
+}
+
+/*
+type ControllerError struct {
+        Message string
+}
+
+func (e *ControllerError) Error() string {
+        return e.Message
+}
+*/
+
+func (c *controller) Routing(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        if r.URL.Path == "/" </span><span class="cov8" title="1">{
+                if r.Method != http.MethodGet </span><span class="cov8" title="1">{
+                        w.WriteHeader(http.StatusMethodNotAllowed)
+                        return
+                }</span>
+                <span class="cov8" title="1">c.handler.GetAll(w, r)
+                return</span>
+        }
+        <span class="cov8" title="1">paths := strings.Split(r.URL.Path, "/")
+        if len(paths) != 2 </span><span class="cov8" title="1">{
+                w.WriteHeader(http.StatusNotFound)
+                return
+        }</span>
+        <span class="cov8" title="1">switch r.Method </span>{
+        case http.MethodGet:<span class="cov8" title="1">
+                c.handler.Get(w, r)
+                return</span>
+        case http.MethodPost:<span class="cov8" title="1">
+                c.handler.Update(w, r)
+                return</span>
+        case http.MethodPut:<span class="cov8" title="1">
+                c.handler.Create(w, r)
+                return</span>
+        default:<span class="cov0" title="0">
+                w.WriteHeader(http.StatusMethodNotAllowed)
+                return</span>
+        }
+}
+
+func NewController(handler handler.IHandler) IController <span class="cov8" title="1">{
+        return &amp;controller{handler: handler}
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package handler
+
+import (
+        "bootcamp/model"
+        "bootcamp/service"
+        "encoding/json"
+        "fmt"
+        "net/http"
+        "strings"
+)
+
+type IHandler interface {
+        Get(w http.ResponseWriter, r *http.Request)
+        GetAll(w http.ResponseWriter, r *http.Request)
+        Create(w http.ResponseWriter, r *http.Request)
+        Update(w http.ResponseWriter, r *http.Request)
+}
+
+type handler struct {
+        service service.IService
+}
+
+func (h *handler) Get(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        username := strings.Split(r.URL.Path, "/")[1]
+        customer, err := h.service.GetCustomerByUsername(username)
+        if err != nil </span><span class="cov8" title="1">{
+                w.WriteHeader(http.StatusGone)
+                return
+        }</span>
+        <span class="cov8" title="1">result, err := json.Marshal(customer)
+        w.Write(result)</span>
+}
+
+func (h *handler) GetAll(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        customers := h.service.GetAllCustomers()
+        if customers == nil </span><span class="cov8" title="1">{
+                w.WriteHeader(http.StatusNoContent)
+                return
+        }</span>
+        <span class="cov8" title="1">customerResponse := model.CustomerResponse{}
+        for _, v := range *customers </span><span class="cov8" title="1">{
+                customerResponse = append(customerResponse, v)
+        }</span>
+        <span class="cov8" title="1">result, err := json.Marshal(customerResponse)
+        if err != nil </span><span class="cov0" title="0">{
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov8" title="1">w.Write(result)</span>
+}
+
+func (h *handler) Create(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        var customer model.Customer
+        err := json.NewDecoder(r.Body).Decode(&amp;customer)
+        fmt.Println(err)
+        if err != nil </span><span class="cov8" title="1">{
+                w.WriteHeader(http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov8" title="1">err = h.service.CreateCustomer(&amp;customer)
+        if err != nil </span><span class="cov0" title="0">{
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov8" title="1">result, _ := json.Marshal(true)
+        w.WriteHeader(http.StatusCreated)
+        w.Write(result)</span>
+}
+
+func (h *handler) Update(w http.ResponseWriter, r *http.Request) <span class="cov8" title="1">{
+        var customer model.Customer
+        err := json.NewDecoder(r.Body).Decode(&amp;customer)
+        fmt.Println(err)
+        if err != nil </span><span class="cov8" title="1">{
+                w.WriteHeader(http.StatusBadRequest)
+                return
+        }</span>
+        <span class="cov8" title="1">oldCustomer, err := h.service.GetCustomerByUsername(customer.Username)
+        if err != nil </span><span class="cov8" title="1">{
+                w.WriteHeader(http.StatusGone)
+                return
+        }</span>
+        <span class="cov8" title="1">oldCustomer.Name = customer.Name
+        oldCustomer.Surname = customer.Surname
+        err = h.service.UpdateCustomer(oldCustomer)
+        if err != nil </span><span class="cov0" title="0">{
+                w.WriteHeader(http.StatusInternalServerError)
+                return
+        }</span>
+        <span class="cov8" title="1">result, _ := json.Marshal(true)
+        w.WriteHeader(http.StatusAccepted)
+        w.Write(result)</span>
+}
+
+func NewHandler(service service.IService) IHandler <span class="cov8" title="1">{
+        return &amp;handler{service: service}
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package repository
+
+import (
+        "bootcamp/model"
+)
+
+type RepositoryError struct {
+        Message string
+}
+
+func (err *RepositoryError) Error() string <span class="cov0" title="0">{
+        return err.Message
+}</span>
+
+type IRepository interface {
+        Customers() *[]model.Customer
+        GetCustomerByUsername(username string) (*model.Customer, error)
+        Add(customer model.Customer)
+        Update(customer model.Customer) error
+}
+
+type repository struct {
+        db []model.Customer
+}
+
+func (r *repository) Customers() *[]model.Customer <span class="cov8" title="1">{
+        return &amp;r.db
+}</span>
+
+func (r *repository) GetCustomerByUsername(username string) (*model.Customer, error) <span class="cov8" title="1">{
+        for _, entity := range r.db </span><span class="cov8" title="1">{
+                if entity.Username == username </span><span class="cov8" title="1">{
+                        return &amp;entity, nil
+                }</span>
+        }
+        <span class="cov8" title="1">return nil, &amp;RepositoryError{Message: "Customer not found"}</span>
+}
+
+func (r *repository) Add(customer model.Customer) <span class="cov8" title="1">{
+        r.db = append(r.db, customer)
+}</span>
+
+func (r *repository) Update(customer model.Customer) error <span class="cov8" title="1">{
+        for i, entity := range r.db </span><span class="cov8" title="1">{
+                if entity.Username == customer.Username </span><span class="cov8" title="1">{
+                        r.db[i] = customer
+                        return nil
+                }</span>
+        }
+        <span class="cov8" title="1">return &amp;RepositoryError{Message: "Customer not found!"}</span>
+}
+
+func NewRepository() IRepository <span class="cov8" title="1">{
+        return &amp;repository{db: []model.Customer{}}
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package service
+
+import (
+        "bootcamp/config"
+        "bootcamp/model"
+        "bootcamp/repository"
+)
+
+type ServiceError struct {
+        Message string
+}
+
+func (err *ServiceError) Error() string <span class="cov0" title="0">{
+        return err.Message
+}</span>
+
+type IService interface {
+        GetCustomerByUsername(username string) (*model.Customer, error)
+        GetAllCustomers() *[]model.Customer
+        CreateCustomer(customer *model.Customer) error
+        UpdateCustomer(customer *model.Customer) error
+        IncreaseBalance(customer *model.Customer, amount float64) error
+        DescreaseBalance(customer *model.Customer, amount float64) error
+}
+
+type service struct {
+        repo repository.IRepository
+}
+
+func NewService(repo repository.IRepository) IService <span class="cov8" title="1">{
+        return &amp;service{repo: repo}
+}</span>
+
+func (s *service) GetCustomerByUsername(username string) (*model.Customer, error) <span class="cov8" title="1">{
+        return s.repo.GetCustomerByUsername(username)
+}</span>
+
+func (s *service) GetAllCustomers() *[]model.Customer <span class="cov8" title="1">{
+        return s.repo.Customers()
+}</span>
+
+func (s *service) CreateCustomer(customer *model.Customer) error <span class="cov8" title="1">{
+        if customer == nil </span><span class="cov8" title="1">{
+                return &amp;ServiceError{Message: "Customer is nil"}
+        }</span>
+        <span class="cov8" title="1">customer.Balance = config.Env.InitialBalanceAmount
+        s.repo.Add(*customer)
+        return nil</span>
+}
+
+func (s *service) UpdateCustomer(customer *model.Customer) error <span class="cov8" title="1">{
+        if customer == nil </span><span class="cov8" title="1">{
+                return &amp;ServiceError{Message: "Customer is nil"}
+        }</span>
+        <span class="cov8" title="1">return s.repo.Update(*customer)</span>
+}
+
+func (s *service) IncreaseBalance(customer *model.Customer, amount float64) error <span class="cov8" title="1">{
+        if customer == nil </span><span class="cov8" title="1">{
+                return &amp;ServiceError{Message: "Customer is nil"}
+        }</span>
+        <span class="cov8" title="1">customer.Balance += amount
+        return s.repo.Update(*customer)</span>
+}
+
+func (s *service) DescreaseBalance(customer *model.Customer, amount float64) error <span class="cov8" title="1">{
+        if customer == nil </span><span class="cov8" title="1">{
+                return &amp;ServiceError{Message: "Customer is nil"}
+        }</span>
+        <span class="cov8" title="1">balance := customer.Balance - amount
+        if config.Env.MinumumBalanceAmount &gt; balance </span><span class="cov8" title="1">{
+                return &amp;ServiceError{Message: "Minumum Balance Amount Error"}
+        }</span>
+        <span class="cov8" title="1">customer.Balance = balance
+        return s.repo.Update(*customer)</span>
+}
+</pre>
+		
+		</div>
+	
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+
+</body></html>

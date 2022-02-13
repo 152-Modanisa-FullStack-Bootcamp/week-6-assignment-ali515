@@ -24,13 +24,13 @@ func (c *Config) IsLocal() bool {
 	return c.isLocal
 }
 
-func init() {
+func Initialize() {
 	appEnv, ok := os.LookupEnv(APP_ENV)
 	if !ok {
 		appEnv = LOCAL
 	}
 
-	path := fmt.Sprintf("../.config/%s.json", appEnv)
+	path := fmt.Sprintf(".config/%s.json", appEnv)
 	read, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)

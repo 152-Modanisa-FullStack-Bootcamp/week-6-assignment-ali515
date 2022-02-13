@@ -56,9 +56,6 @@ func (h *handler) Create(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else if customer.Username == "" {
-		w.WriteHeader(http.StatusNotAcceptable)
-		return
 	}
 	err = h.service.CreateCustomer(&customer)
 	if err != nil {
@@ -76,9 +73,6 @@ func (h *handler) Update(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(err)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		return
-	} else if customer.Username == "" {
-		w.WriteHeader(http.StatusNotAcceptable)
 		return
 	}
 	oldCustomer, err := h.service.GetCustomerByUsername(customer.Username)

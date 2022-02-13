@@ -1,11 +1,18 @@
 package repository
 
 import (
+	"bootcamp/config"
 	"bootcamp/model"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	os.Chdir("..")
+	config.Initialize()
+}
 
 func TestCustomers(t *testing.T) {
 	repo := NewRepository()
@@ -41,16 +48,6 @@ func TestAdd(t *testing.T) {
 		repo.Add(entity)
 		assert.Equal(t, 1, len(repo.db))
 	})
-
-	/*
-		t.Run("Check Added customer initial balance", func(t *testing.T) {
-			db := []model.Customer{}
-			repo := repository{db: db}
-			repo.Add(model.Customer{Username: "username", Balance: 100})
-			entity := repo.db[0]
-			assert.Equal(t, float64(0), entity.Balance)
-		})
-	*/
 }
 
 func TestUpdate(t *testing.T) {

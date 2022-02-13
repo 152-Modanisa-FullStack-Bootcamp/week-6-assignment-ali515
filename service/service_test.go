@@ -5,11 +5,17 @@ import (
 	mock_repository "bootcamp/mocks/repository"
 	"bootcamp/model"
 	"bootcamp/service"
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
+
+func init() {
+	os.Chdir("..")
+	config.Initialize()
+}
 
 func TestGetCustomerByUsername(t *testing.T) {
 	mockController := gomock.NewController(t)

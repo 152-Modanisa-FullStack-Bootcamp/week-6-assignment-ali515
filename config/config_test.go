@@ -14,6 +14,11 @@ const (
 	VAL = "VAL"
 )
 
+func init() {
+	os.Chdir("..")
+	config.Initialize()
+}
+
 func TestGetEnvReturnDefault(t *testing.T) {
 	env := config.GetEnv(KEY, DEF)
 	assert.Equal(t, env, DEF)

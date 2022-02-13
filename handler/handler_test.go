@@ -1,6 +1,7 @@
 package handler_test
 
 import (
+	"bootcamp/config"
 	"bootcamp/handler"
 	mock_service "bootcamp/mocks/service"
 	"bootcamp/model"
@@ -8,6 +9,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -20,6 +22,11 @@ type ErrorTest struct {
 
 func (e *ErrorTest) Error() string {
 	return e.Message
+}
+
+func init() {
+	os.Chdir("..")
+	config.Initialize()
 }
 
 func TestGet(t *testing.T) {
@@ -89,19 +96,6 @@ func TestCreate(t *testing.T) {
 		assert.Equal(t, http.StatusBadRequest, result)
 	})
 
-	t.Run("Nil customer", func(t *testing.T) {
-		mockController := gomock.NewController(t)
-		mockService := mock_service.NewMockIService(mockController)
-		handler := handler.NewHandler(mockService)
-		customer := model.Customer{}
-		buf, _ := json.Marshal(customer)
-		req := httptest.NewRequest(http.MethodPut, "/username", bytes.NewBuffer(buf))
-		res := httptest.NewRecorder()
-		handler.Create(res, req)
-		result := res.Result().StatusCode
-		assert.Equal(t, http.StatusNotAcceptable, result)
-	})
-
 	t.Run("Create customer", func(t *testing.T) {
 		mockController := gomock.NewController(t)
 		mockService := mock_service.NewMockIService(mockController)
@@ -127,19 +121,6 @@ func TestUpdate(t *testing.T) {
 		handler.Update(res, req)
 		result := res.Result().StatusCode
 		assert.Equal(t, http.StatusBadRequest, result)
-	})
-
-	t.Run("Nil customer", func(t *testing.T) {
-		mockController := gomock.NewController(t)
-		mockService := mock_service.NewMockIService(mockController)
-		handler := handler.NewHandler(mockService)
-		customer := model.Customer{}
-		buf, _ := json.Marshal(customer)
-		req := httptest.NewRequest(http.MethodPost, "/username", bytes.NewBuffer(buf))
-		res := httptest.NewRecorder()
-		handler.Update(res, req)
-		result := res.Result().StatusCode
-		assert.Equal(t, http.StatusNotAcceptable, result)
 	})
 
 	t.Run("Not found customer", func(t *testing.T) {

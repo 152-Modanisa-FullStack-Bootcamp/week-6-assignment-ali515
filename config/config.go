@@ -30,7 +30,8 @@ func init() {
 		appEnv = LOCAL
 	}
 
-	read, err := os.ReadFile(fmt.Sprintf("../.config/%s.json", appEnv))
+	path := fmt.Sprintf("../.config/%s.json", appEnv)
+	read, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
